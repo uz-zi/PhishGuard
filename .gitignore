@@ -1,0 +1,11 @@
+# Secrets
+.env
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Raw datasets (too large)
+data/raw/
+
