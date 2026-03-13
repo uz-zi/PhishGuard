@@ -23,8 +23,8 @@ print(f"   Columns : {df.shape[1]}")
 # ── 2. CHECK LABEL DISTRIBUTION ─────────────────────────────
 print("\n── Label Distribution ──────────────────────────────────")
 print(df['Label'].value_counts())
-print(f"\n   Legitimate (0) : {(df['Label'] == 0).sum():,}")
-print(f"   Phishing   (1) : {(df['Label'] == 1).sum():,}")
+print(f"   Legitimate : {(df['Label'] == 'Legitimate').sum():,}")
+print(f"   Phishing   : {(df['Label'] == 'Phishing').sum():,}")
 
 # ── 3. DROP HTML/PAGE-BASED COLUMNS (keep URL-only) ─────────
 # These require loading the webpage — not suitable for URL-only thesis
@@ -112,10 +112,10 @@ else:
 print("\n── Final Dataset Summary ───────────────────────────────")
 print(f"   Total rows     : {len(df):,}")
 print(f"   Total features : {df.shape[1] - 2} (excluding URL and Label)")
-print(f"   Legitimate (0) : {(df['Label'] == 0).sum():,}")
-print(f"   Phishing   (1) : {(df['Label'] == 1).sum():,}")
+print(f"   Legitimate : {(df['Label'] == 'Legitimate').sum():,}")
+print(f"   Phishing   : {(df['Label'] == 'Phishing').sum():,}")
 
-balance_pct = (df['Label'] == 1).sum() / len(df) * 100
+balance_pct = (df['Label'] == 'Phishing').sum() / len(df) * 100
 print(f"   Phishing ratio : {balance_pct:.1f}%")
 
 if 40 <= balance_pct <= 60:
@@ -126,6 +126,16 @@ else:
 # ── 8. SAVE CLEANED DATASET ─────────────────────────────────
 os.makedirs('data/processed', exist_ok=True)
 output_path = 'data/processed/stealthphisher_clean.csv'
+
+# Convert text labels to numbers — ML models need numeric labels
+# Phishing = 1, Legitimate = 0
+df['Label'] = df['Label'].map({'Phishing': 1, 'Legitimate': 0})
+
+# Confirm conversion worked
+print(f"\n── Label Encoding ──────────────────────────────────────")
+print(df['Label'].value_counts())
+print(f"   Label dtype: {df['Label'].dtype}")
+
 df.to_csv(output_path, index=False)
 print(f"\n Cleaned dataset saved to: {output_path}")
 
