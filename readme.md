@@ -232,4 +232,198 @@ One column name had a hidden trailing space in the original dataset. This was ha
 python scripts/01_data_cleaning.py
 ```
 
+# Phase 3 — Model Training & Evaluation
+
+> **Script:** `03_model_training.py`
+> **Goal:** Train Logistic Regression and Random Forest models on 336,747 URLs and evaluate their performance in detecting phishing websites using URL-based features only.
+
+---
+
+## 📋 Overview
+
+This phase trains two machine learning models on the cleaned and engineered dataset from Phase 2. The models learn to classify URLs as phishing (1) or legitimate (0) based on 29 URL structural features. Both models are evaluated using standard classification metrics and compared to identify the best performer for deployment.
+
+---
+
+## 📁 Files Involved
+
+| File | Type | Description |
+|---|---|---|
+| `data/processed/X_train.csv` | Input | Feature matrix (336,747 rows × 29 features) |
+| `data/processed/y_train.csv` | Input | Label column (0 = Legitimate, 1 = Phishing) |
+| `model/model.pkl` | Output | Trained Random Forest model — used by API |
+| `model/lr_model.pkl` | Output | Trained Logistic Regression model — baseline |
+| `model/model_results.json` | Output | All evaluation metrics saved as JSON |
+| `data/processed/confusion_matrices.png` | Output | Side-by-side confusion matrix charts |
+| `data/processed/feature_importance.png` | Output | Random Forest feature importance chart |
+
+---
+
+## 📜 Script — Model Training (`03_model_training.py`)
+
+### Steps
+
+**Step 1 — Load Data**
+Loads `X_train.csv` and `y_train.csv` from `data/processed/`.
+Converts y from a 2D column to a 1D array using `.values.ravel()` as required by scikit-learn.
+```
+X shape : (336,747, 29)
+y shape : (336,747,)
+```
+
+**Step 2 — Train/Test Split**
+Splits the dataset into 70% training and 30% testing:
+```
+Training set : 235,722 rows (70%)
+Testing set  : 101,025 rows (30%)
+```
+`stratify=y` ensures both sets have the same phishing/legitimate ratio.
+`random_state=42` makes the split reproducible.
+
+**Step 3 — Train Logistic Regression (Baseline)**
+Trains a simple linear classifier as the baseline model:
+```python
+LogisticRegression(
+    max_iter=1000,
+    class_weight='balanced',
+    n_jobs=-1,
+    random_state=42
+)
+```
+`class_weight='balanced'` handles any minor class imbalance automatically.
+`n_jobs=-1` uses all CPU cores for maximum speed.
+
+**Step 4 — Train Random Forest (Main Model)**
+Trains an ensemble of 100 decision trees:
+```python
+RandomForestClassifier(
+    n_estimators=100,
+    class_weight='balanced',
+    n_jobs=-1,
+    random_state=42
+)
+```
+Random Forest combines votes from 100 trees to make each prediction — significantly more robust than a single decision tree or linear model.
+
+**Step 5 — Evaluate Both Models**
+Both models are evaluated on the 30% test set using 4 standard metrics:
+- **Accuracy** — overall percentage of correct predictions
+- **Precision** — of all URLs flagged as phishing, how many were actually phishing
+- **Recall** — of all actual phishing URLs, how many did the model catch
+- **F1-Score** — harmonic mean of precision and recall
+
+**Step 6 — Cross Validation**
+5-fold cross validation is applied to the Random Forest model to confirm it generalises well and is not overfitting to the training data.
+
+**Step 7 — Save Models**
+Both models are saved as `.pkl` files using joblib. The Random Forest model is the primary model loaded by the FastAPI backend.
+
+---
+
+## 📊 Results
+
+### Model Performance on Test Set (101,025 URLs)
+
+| Metric | Logistic Regression | Random Forest |
+|---|---|---|
+| **Accuracy** | 99.72% | **99.76%** ✅ |
+| **Precision** | **99.97%** | 99.91% |
+| **Recall** | 99.49% | **99.63%** ✅ |
+| **F1-Score** | 99.73% | **99.77%** ✅ |
+
+### Cross Validation — Random Forest (k=5)
+
+| Fold | F1-Score |
+|---|---|
+| Fold 1 | 0.9980 |
+| Fold 2 | 0.9981 |
+| Fold 3 | 0.9978 |
+| Fold 4 | 0.9978 |
+| Fold 5 | 0.9979 |
+| **Mean** | **0.9979** |
+| **Std Dev** | **±0.0001** |
+
+The extremely low standard deviation (±0.0001) confirms the model is highly consistent across all folds — no overfitting detected.
+
+### Classification Report — Logistic Regression
+
+```
+              precision    recall  f1-score   support
+  Legitimate       0.99      1.00      1.00     48,283
+    Phishing       1.00      0.99      1.00     52,742
+    accuracy                           1.00    101,025
+   macro avg       1.00      1.00      1.00    101,025
+weighted avg       1.00      1.00      1.00    101,025
+```
+
+### Classification Report — Random Forest
+
+```
+              precision    recall  f1-score   support
+  Legitimate       1.00      1.00      1.00     48,283
+    Phishing       1.00      1.00      1.00     52,742
+    accuracy                           1.00    101,025
+   macro avg       1.00      1.00      1.00    101,025
+weighted avg       1.00      1.00      1.00    101,025
+```
+
+---
+
+## How Good Are These Results?
+
+To put the results in context:
+
+| System | Accuracy |
+|---|---|
+| Most published phishing detection papers | 92–96% |
+| Traditional blacklist-based tools | ~70–80% |
+| **This project — Logistic Regression** | **99.72%** |
+| **This project — Random Forest** | **99.76%** |
+
+Both models significantly exceed the 90% accuracy target set at the start of this research and outperform most results reported in the existing literature.
+
+---
+
+## 🔍 Why Random Forest Was Selected as the Primary Model
+
+Random Forest outperforms Logistic Regression on 3 out of 4 metrics:
+- Higher accuracy (99.76% vs 99.72%)
+- Higher recall (99.63% vs 99.49%) — catches more real phishing URLs
+- Higher F1-score (99.77% vs 99.73%)
+
+While Logistic Regression achieves slightly higher precision (99.97% vs 99.91%), recall is the more critical metric for a security tool — missing a real phishing URL (false negative) is more dangerous than occasionally flagging a safe URL (false positive).
+
+Random Forest is therefore selected as the primary model and saved to `model/model.pkl` for API deployment.
+
+---
+
+## 🖥️ Training Environment
+
+| Property | Detail |
+|---|---|
+| **CPU** | Intel Core i5-8250U @ 1.60GHz (4 cores / 8 threads) |
+| **RAM** | 16GB |
+| **Storage** | 238GB SSD |
+| **OS** | Windows 10 64-bit |
+| **Python** | 3.12.1 |
+| **Scikit-learn** | latest |
+| **Training rows** | 235,722 |
+| **Testing rows** | 101,025 |
+| **Features** | 29 URL-based features |
+
+---
+
+## ✅ Phase 3 Outcome
+
+| Task | Result |
+|---|---|
+| Logistic Regression trained | ✅ 99.72% accuracy |
+| Random Forest trained | ✅ 99.76% accuracy |
+| Cross validation passed | ✅ 99.79% mean F1 (±0.0001) |
+| No overfitting detected | ✅ Confirmed |
+| Best model saved | ✅ model/model.pkl |
+| Results documented | ✅ model/model_results.json |
+| Confusion matrices generated | ✅ data/processed/confusion_matrices.png |
+| Feature importance generated | ✅ data/processed/feature_importance.png |
+
 ---
