@@ -1,24 +1,24 @@
 {
   "dataset": "Raw URLs 822k + Tranco 650k augmented",
   "label_convention": "1=phishing, 0=legitimate",
-  "training_rows": 1046999,
-  "testing_rows": 448714,
-  "total_features": 42,
+  "training_rows": 891673,
+  "testing_rows": 382146,
+  "total_features": 48,
   "logistic_regression": {
-    "accuracy": 0.8010469920706731,
-    "precision": 0.5824891413958332,
-    "recall": 0.773175041993281,
-    "f1": 0.6644212805467115,
-    "time": 191.08
+    "accuracy": 0.8286885117206513,
+    "precision": 0.6837894388246628,
+    "recall": 0.7948190789473685,
+    "f1": 0.7351356162610047,
+    "time": 149.86
   },
   "random_forest": {
-    "accuracy": 0.9518178617114688,
-    "precision": 0.9215745137638047,
-    "recall": 0.8862769456886898,
-    "f1": 0.903581144360701,
-    "time": 100.5,
-    "cv_mean_f1": 0.7152,
-    "cv_std_f1": 0.1317
+    "accuracy": 0.9540411256430789,
+    "precision": 0.9457247905935257,
+    "recall": 0.8978775895856663,
+    "f1": 0.9211802984404802,
+    "time": 96.9,
+    "cv_mean_f1": 0.7466,
+    "cv_std_f1": 0.1225
   },
   "best_model": "random_forest"
 }

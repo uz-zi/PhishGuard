@@ -40,11 +40,5 @@
   "having_fragment",
   "having_anchor",
   "entropy_of_url",
-  "entropy_of_domain",
-  "has_suspicious_tld",
-  "is_known_safe_sld",
-  "consonant_vowel_ratio",
-  "longest_digit_sequence",
-  "digit_letter_ratio",
-  "path_to_url_ratio"
+  "entropy_of_domain"
 ]
