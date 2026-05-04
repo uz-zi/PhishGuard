@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PhishGuard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">
+      <span class="logo-icon">🛡️</span>
+      <span class="logo-text">PhishGuard new</span>
+    </div>
+    <div class="version">v1.0</div>
+  </div>
+
+  <div class="url-section">
+    <div class="url-label">Current URL</div>
+    <div class="url-text" id="currentUrl">Loading...</div>
+  </div>
+
+  <div class="result-section">
+
+    <div class="loading" id="loadingState">
+      <div class="spinner"></div>
+      <div class="loading-text">Analysing URL...</div>
+    </div>
+
+    <div class="result hidden" id="resultState">
+      <div class="result-icon" id="resultIcon"></div>
+      <div class="result-label" id="resultLabel"></div>
+      <div class="confidence-bar-container">
+        <div class="confidence-label">Confidence</div>
+        <div class="confidence-bar">
+          <div class="confidence-fill" id="confidenceFill"></div>
+        </div>
+        <div class="confidence-text" id="confidenceText"></div>
+      </div>
+      <div class="result-message" id="resultMessage"></div>
+    </div>
+
+    <div class="error hidden" id="errorState">
+      <div class="error-icon">⚠️</div>
+      <div class="error-text" id="errorText">Cannot connect to PhishGuard API.</div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-text">Dublin Business School — 2026</div>
+    <button class="recheck-btn" id="recheckBtn">🔄 Re-check</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
