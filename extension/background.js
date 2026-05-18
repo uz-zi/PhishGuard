@@ -7,7 +7,6 @@
 //   1. Skip internal browser pages
 //   2. Check known safe SLD → skip API if safe
 //   3. Call PhishGuard API
-//   4. Only warn if confidence >= 80%
 // ============================================================
 
 const API_URL = "https://uzmann-phish-guard.hf.space/predict";
@@ -117,7 +116,7 @@ async function checkUrl(url, tabId) {
         setBadgeGreen(tabId);
         await storeResult(
             tabId, url, 0, 0.99, 'legitimate',
-            '✅ Known safe domain — PhishGuard'
+            'Known safe domain — PhishGuard'
         );
         return; // skip API call
     }
@@ -142,9 +141,6 @@ async function checkUrl(url, tabId) {
             data.message
         );
 
-        // ── Layer 4: Only warn if confidence >= 80% ───────────
-        // Prevents borderline false positives from
-        // triggering unnecessary warnings.
         if (data.prediction === 1) {
             setBadgeRed(tabId);
             // send to content script to show warning banner
@@ -171,7 +167,7 @@ async function checkUrl(url, tabId) {
         setBadgeGrey(tabId);
         await storeResult(
             tabId, url, -1, 0, 'unknown',
-            '⚠️ Cannot connect to PhishGuard API'
+            'Cannot connect to PhishGuard API'
         );
     }
 }
@@ -197,6 +193,6 @@ chrome.tabs.onActivated.addListener(async function(activeInfo) {
 
 // ── On Install ────────────────────────────────────────────────
 chrome.runtime.onInstalled.addListener(function() {
-    console.log('PhishGuard v5 installed!');
+    console.log('PhishGuard installed!');
     console.log('API:', API_URL);
 });

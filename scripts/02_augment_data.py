@@ -5,24 +5,7 @@
 #          data/raw/top-1m.csv
 # Output : data/processed/augmented_urls.csv
 #
-# Covers ALL URL patterns including:
-#   ✅ Simple homepages
-#   ✅ No-www domains
-#   ✅ HTTP versions
-#   ✅ Hyphenated paths (mp3cut.net/change-speed)
-#   ✅ Deep paths
-#   ✅ Query parameters
-#   ✅ UTM tracking parameters
-#   ✅ Alphanumeric IDs (YouTube, Google Drive)
-#   ✅ UUID paths (Claude, Notion)
-#   ✅ User account paths (/u/0/)
-#   ✅ Subdomains (myaccount., drive., mail.)
-#   ✅ Multi-level subdomains (m365.cloud.microsoft) 
-#   ✅ HTTP + subdomain + UTM combinations
-#   ✅ Country code TLDs (.co.uk, .com.au)
-#   ✅ Newer domains not in Tranco 2023
-#   ✅ URL shortener patterns
-#   ✅ Numeric IDs in path (Amazon style)
+# Covers 15 sections with 69 urls patterns 
 #
 # Author : Uzman Zahid
 # ============================================================
@@ -39,7 +22,7 @@ print("=" * 60)
 
 # ── 1. LOAD EXISTING DATASET ─────────────────────────────────
 df = pd.read_csv('data/processed/clean_urls.csv')
-print(f"\n✅ Existing dataset loaded: {len(df):,} URLs")
+print(f"\nExisting dataset loaded: {len(df):,} URLs")
 print(f"   Phishing   (0): {(df['status']==0).sum():,}")
 print(f"   Legitimate (1): {(df['status']==1).sum():,}")
 
@@ -47,14 +30,13 @@ print(f"   Legitimate (1): {(df['status']==1).sum():,}")
 # names=['rank', 'domain'] assigns column names manually
 tranco = pd.read_csv('data/raw/top-1m.csv', header=None,
                      names=['rank', 'domain'])
-print(f"\n✅ Tranco list loaded: {len(tranco):,} domains")
+print(f"\nTranco list loaded: {len(tranco):,} domains")
 
-top_domains = tranco[tranco['rank'] <= 10000]['domain'].tolist()
+top_domains = tranco[tranco['rank'] <= 3000]['domain'].tolist()
 print(f"   Using top 10,000 domains")
 
-# ── 3. MANUALLY ADD NEWER DOMAINS (not in Tranco 2023) ──────
+# ── 3. MANUALLY ADD NEWER DOMAINS (not in Tranco) ──────
 # These are important legitimate domains that may not appear
-# in the 2023 Tranco list but are widely used in 2025/2026
 newer_domains = [
     # AI platforms
     'openai.com', 'claude.ai', 'perplexity.ai', 'gemini.google.com',
@@ -403,4 +385,4 @@ print(f"   Legitimate : {pct_legit:.1f}%")
 # ── 11. SAVE ──────────────────────────────────────────────────
 os.makedirs('data/processed', exist_ok=True)
 combined.to_csv('data/processed/augmented_urls.csv', index=False)
-print(f"\n✅ Saved: data/processed/augmented_urls.csv")
+print(f"\nSaved: data/processed/augmented_urls.csv")

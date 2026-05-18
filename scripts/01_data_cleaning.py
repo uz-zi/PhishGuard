@@ -21,7 +21,7 @@ print("=" * 60)
 
 # ── 1. LOAD DATASET ──────────────────────────────────────────
 df = pd.read_csv('data/raw/new_data_urls.csv')
-print(f"\n✅ Dataset loaded")
+print(f"\n Dataset loaded")
 # Shows number of rows
 print(f"   Rows    : {len(df):,}")
 # Displays column names as a list
@@ -54,7 +54,7 @@ print(f"   After dropna: {len(df):,}")
 os.makedirs('data/processed', exist_ok=True)
 # index=False: avoids saving row numbers
 df.to_csv('data/processed/clean_urls.csv', index=False)
-print(f"\n✅ Saved: data/processed/clean_urls.csv")
+print(f"\nSaved: data/processed/clean_urls.csv")
 
 # ── 6. PLOT ──────────────────────────────────────────────────
 plt.figure(figsize=(6, 4))

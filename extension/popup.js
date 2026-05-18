@@ -9,7 +9,6 @@ const API_URL = "https://uzmann-phish-guard.hf.space/predict";
 const REPORT_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSefiGMhkce7JbdXTN4Fh34ZIQnmEPkFmbYUpJiHqogGtrgYwA/viewform?usp=sharing&ouid=109684724618784885160";
 
 // ── SAME known safe list as background.js ──────────────────
-// IMPORTANT: Keep this in sync with background.js
 const KNOWN_SAFE_SLDS = new Set([
   "google","youtube","facebook","instagram","twitter","x",
   "microsoft","apple","amazon","netflix","spotify","linkedin",
@@ -82,7 +81,7 @@ function showResult(data) {
   confidenceText.textContent = confidencePct + "% confidence";
   resultMessage.textContent  = isPhishing
     ? "⚠️ Do NOT enter any personal information on this site!"
-    : "✅ This URL appears to be safe to browse.";
+    : "This URL appears to be safe to browse.";
 }
 
 function showSafe(url) {
@@ -96,7 +95,7 @@ function showSafe(url) {
   confidenceFill.style.width = "100%";
   confidenceFill.className   = "confidence-fill legitimate";
   confidenceText.textContent = "100% confidence";
-  resultMessage.textContent  = "✅ Trusted domain — known safe website.";
+  resultMessage.textContent  = "Trusted domain — known safe website.";
 }
 
 function showError(msg) {
@@ -113,13 +112,13 @@ async function analyseUrl(url) {
     ? url.substring(0, 52) + "..."
     : url;
 
-  // ✅ LAYER 1 — Check known safe domains first
+  // LAYER 1 — Check known safe domains first
   if (isKnownSafe(url)) {
     showSafe(url);
     return;
   }
 
-  // ✅ LAYER 2 — Call API for everything else
+  // LAYER 2 — Call API for everything else
   try {
     const response = await fetch(API_URL, {
       method  : "POST",
@@ -153,7 +152,7 @@ async function init() {
         url.startsWith("edge://") ||
         url.startsWith("file://")) {
       currentUrlEl.textContent = url || "N/A";
-      showError("ℹ️ PhishGuard cannot analyse browser internal pages.");
+      showError("PhishGuard cannot analyse browser internal pages.");
       return;
     }
 
@@ -178,7 +177,7 @@ async function init() {
 recheckBtn.addEventListener("click", function() {
   chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
     if (tabs && tabs[0] && tabs[0].url) {
-      analyseUrl(tabs[0].url);  // ✅ includes known safe check
+      analyseUrl(tabs[0].url);  // includes known safe check
     }
   });
 });
